@@ -1,12 +1,19 @@
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Encrypter {
 
     private int shift;
     private String encrypted;
+	static ArrayList<Character> decrypt = new ArrayList<Character>();
+	static ArrayList<Character> encrypt = new ArrayList<Character>();
+
+
 
     /**
      * Default Constructor
@@ -33,8 +40,57 @@ public class Encrypter {
      * @throws Exception if an error occurs while reading or writing the files
      */
     public void encrypt(String inputFilePath, String encryptedFilePath) throws Exception {
-        //TODO: Call the read method, encrypt the file contents, and then write to new file
+    	
+    	String text = readFile(inputFilePath);
+    	String wantedmessage = "";
+    	int i = 0;
+    	while(i < text.length()) {
+    		char tempstr = text.charAt(i);
+    		if(Character.isLetter(tempstr)) {
+        		if(Character.isUpperCase(tempstr)) {
+        			int numervalue = ((int) tempstr) - 64;
+        			if(numervalue - this.shift <= 0) {
+        				int updatedvalue = numervalue + 26 - this.shift; 
+        				char adjvalue = (char) (updatedvalue + 64);
+            			encrypt.add(adjvalue);
+            			i++;
+        			}
+        			else {
+        			char adjvalue = (char) (((numervalue - this.shift) % 26) + 64);
+        			encrypt.add(adjvalue);
+        			i++;
+        			}
+        		}
+        		else {
+        			int numervalue = ((int) tempstr) - 96;
+        			if(numervalue - this.shift <= 0) {
+        				int updatedvalue = numervalue + 26 - this.shift; 
+        				char adjvalue = (char) (updatedvalue + 96);
+            			encrypt.add(adjvalue);
+            			i++;
+        			}
+        			else {
+        			char adjvalue = (char) (((numervalue - this.shift) % 26) + 96);
+        			encrypt.add(adjvalue);
+        			i++;
+        			}
+        		}
+    		}
+    		else {
+    			encrypt.add(text.charAt(i));
+    			i++;
+    		}
+    	}
+    	for(int j = 0; j < encrypt.size(); j++) {
+    		String current = Character.toString(encrypt.get(j));
+    		wantedmessage += current;
+    	}
+    	writeFile(wantedmessage, encryptedFilePath);
+        //TODO: Call the read method, decrypt the file contents, and then write to new file
     }
+
+        //TODO: Call the read method, encrypt the file contents, and then write to new file
+    
 
     /**
      * Decrypts the content of an encrypted file and writes the result to another file.
@@ -44,6 +100,51 @@ public class Encrypter {
      * @throws Exception if an error occurs while reading or writing the files
      */
     public void decrypt(String messageFilePath, String decryptedFilePath) throws Exception {
+    	String text = readFile(messageFilePath);
+    	String wantedmessage = "";
+    	int i = 0;
+    	while(i < text.length()) {
+    		char tempstr = text.charAt(i);
+    		if(Character.isLetter(tempstr)) {
+        		if(Character.isUpperCase(tempstr)) {
+        			int numervalue = ((int) tempstr) - 64;
+        			if(numervalue - this.shift <= 0) {
+        				int updatedvalue = numervalue + 26 - this.shift; 
+        				char adjvalue = (char) (updatedvalue + 64);
+            			decrypt.add(adjvalue);
+            			i++;
+        			}
+        			else {
+        			char adjvalue = (char) (((numervalue - this.shift) % 26) + 64);
+        			decrypt.add(adjvalue);
+        			i++;
+        			}
+        		}
+        		else {
+        			int numervalue = ((int) tempstr) - 96;
+        			if(numervalue - this.shift <= 0) {
+        				int updatedvalue = numervalue + 26 - this.shift; 
+        				char adjvalue = (char) (updatedvalue + 96);
+            			decrypt.add(adjvalue);
+            			i++;
+        			}
+        			else {
+        			char adjvalue = (char) (((numervalue - this.shift) % 26) + 96);
+        			decrypt.add(adjvalue);
+        			i++;
+        			}
+        		}
+    		}
+    		else {
+    			decrypt.add(text.charAt(i));
+    			i++;
+    		}
+    	}
+    	for(int j = 0; j < decrypt.size(); j++) {
+    		String current = Character.toString(decrypt.get(j));
+    		wantedmessage += current;
+    	}
+    	writeFile(wantedmessage, decryptedFilePath);
         //TODO: Call the read method, decrypt the file contents, and then write to new file
     }
 
@@ -57,6 +158,15 @@ public class Encrypter {
     private static String readFile(String filePath) throws Exception {
         String message = "";
         //TODO: Read file from filePath
+        try(Scanner fileScanner = new Scanner(Paths.get(filePath))){
+        	while(fileScanner.hasNextLine()) {
+        		String line = fileScanner.nextLine();
+        		message += line + "\n";
+        	}
+        	fileScanner.close();
+        } catch(Exception e) {
+        	System.out.println("File not found");
+        }
         return message;
     }
 
@@ -68,6 +178,11 @@ public class Encrypter {
      */
     private static void writeFile(String data, String filePath) {
         //TODO: Write to filePath
+    	try(PrintWriter output = new PrintWriter(filePath)){
+    		output.println(data);
+    	} catch (Exception e) {
+    		System.out.println("Error while attempting to write to file");
+    	}
     }
 
     /**
