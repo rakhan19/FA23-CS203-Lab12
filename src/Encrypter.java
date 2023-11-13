@@ -180,6 +180,7 @@ public class Encrypter {
         //TODO: Write to filePath
     	try(PrintWriter output = new PrintWriter(filePath)){
     		output.println(data);
+    		output.close();
     	} catch (Exception e) {
     		System.out.println("Error while attempting to write to file");
     	}
